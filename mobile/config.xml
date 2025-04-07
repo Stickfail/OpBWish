@@ -1,0 +1,13 @@
+
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.sillierwisherers.app" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+    <name>Sillier Wisherers</name>
+    <description>A silly wishing simulator</description>
+    <content src="index.html" />
+    <allow-intent href="http://*/*" />
+    <allow-intent href="https://*/*" />
+    <platform name="android">
+        <allow-intent href="market:*" />
+    </platform>
+    <preference name="Orientation" value="portrait" />
+</widget>

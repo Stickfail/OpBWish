@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sillier Wisherers</title>
+    <style>
+        span{
+            border: 1px solid rgba(0,0,0,0.4);
+            padding: 10px;
+        }
+        .wish-animation {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+            z-index: 2500;
+        }
+
+        .wish-results {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2001;
+            background: black;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: url('https://upload-os-bbs.hoyolab.com/upload/2024/09/19/361137804/563aba2d9cbf17c8ebca6db0319492af_4556627821247286472.jpg?x-oss-process=image%2Fresize%2Cs_1000%2Fauto-orient%2C0%2Finterlace%2C1%2Fformat%2Cwebp%2Fquality%2Cq_70') no-repeat center center;
+            background-size: cover;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            z-index: 1000;
+            border-bottom: 1px solid #ccc;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header-content h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .header-info {
+            display: flex;
+            gap: 20px;
+        }
+
+        .header-info span {
+            color: #333;
+            font-size: 16px;
+        }
+
+        .main-screen {
+            display: flex;
+            height: calc(100vh - 60px);
+            width: 100%;
+            padding-top: 60px;
+        }
+
+        /* Updated banner select styling */
+        .banner-select {
+            position: fixed;
+            left: 0;
+            top: 60px;
+            bottom: 0;
+            width: 150px;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 15px;
+            overflow-y: auto;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .banner-item {
+            height: 120px; /* Increased height for cropped images */
+            margin: 8px 0;
+            background: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 2px solid transparent;
+        }
+
+        /* New style for banner icons */
+        .banner-icon {
+            position: absolute;
+            width: 200%;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -30%); /* Adjusted to show head portion */
+            object-fit: cover;
+        }
+
+        .banner-item.active {
+            border-color: #F4C85C;
+        }
+
+        .banner-detail {
+            flex-grow: 1;
+            position: relative;
+            padding: 20px;
+            margin-left: 150px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: calc(100% - 150px);
+        }
+
+        .banner-art {
+            width: 90%;
+            height: 80%;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        /* New style for banner art image */
+        .banner-art img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .wish-buttons {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            gap: 15px;
+            z-index: 1;
+        }
+
+        button {
+            padding: 18px 35px;
+            font-size: 20px;
+            background: #F4C85C;
+            border: none;
+            color: #1F1F1F;
+            cursor: pointer;
+            border-radius: 25px;
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        button:hover {
+            background: #F0B74A;
+            transform: scale(1.05);
+        }
+
+        /* Updated wish screen styling */
+        .wish-screen {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: black;
+            z-index: 2000;
+        }
+
+        .wish-animation {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: none;
+        }
+
+        .wish-results {
+            display: none;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            box-sizing: border-box;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .single-result {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            position: absolute;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .slide-out {
+            transform: translateX(-150%) rotate(-30deg);
+        }
+
+        .slide-in {
+            transform: translateX(150%);
+        }
+
+        .slide-center {
+            transform: translateX(0);
+        }
+
+        .single-result img {
+            max-height: 80vh;
+            width: auto;
+        }
+
+        .result-item {
+            background: rgba(128, 128, 128, 0.1);
+            border: 2px solid rgba(128, 128, 128, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, background-color 0.2s;
+            text-align: center;
+        }
+
+        .result-item:hover {
+            transform: scale(1.05);
+            background: rgba(128, 128, 128, 0.2);
+        }
+
+        .result-item img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 15px;
+            padding: 20px;
+            width: 80%;
+            max-width: 1000px;
+            margin: 20px auto;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .result-item {
+            width: 100%;
+            aspect-ratio: 3/4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .result-item:hover {
+            transform: scale(1.05);
+        }
+
+        .result-item img {
+            max-width: 100%;
+            max-height: 80%;
+            object-fit: contain;
+        }
+
+        .result-item h3 {
+            margin: 5px 0;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        .explosion-effect {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 2002;
+        }
+
+        .rarity-effect.star5 {
+            background: radial-gradient(circle, rgba(255,215,0,0.2) 0%, rgba(0,0,0,0) 70%);
+        }
+
+        .rarity-effect.star4 {
+            background: radial-gradient(circle, rgba(147,112,219,0.2) 0%, rgba(0,0,0,0) 70%);
+        }
+
+        .skip-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 3000;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        .character-archive-button {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+
+        .character-archive {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .character-content {
+            display: flex;
+            gap: 20px;
+            height: calc(100% - 140px);
+            margin-top: 60px;
+            flex-wrap: wrap;
+        }
+
+        .character-view {
+            flex: 1 1 400px;
+            min-height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .character-view img {
+            max-height: 100%;
+            max-width: 100%;
+            object-fit: contain;
+        }
+
+        .character-data {
+            flex: 1 1 300px;
+            min-height: 200px;
+            color: white;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            overflow-y: auto;
+        }
+
+        .character-thumbnails {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100px;
+            background: rgba(0, 0, 0, 0.8);
+            overflow-x: auto;
+            white-space: nowrap;
+            padding: 10px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .character-thumbnail {
+            flex: 0 0 80px;
+            height: 80px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            position: relative;
+        }
+
+        .character-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+        .return-button {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.9);
+            color: #333;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+
+        @media (max-width: 768px) {
+            .banner-select {
+                width: 100px;
+            }
+            .banner-detail {
+                margin-left: 100px;
+                width: calc(100% - 100px);
+            }
+            .banner-art {
+                width: 100%;
+                height: 70vh;
+            }
+            .wish-buttons {
+                gap: 10px;
+            }
+            button {
+                padding: 12px 25px;
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="header">
+        <div class="header-content">
+            <h1>Sillier Wisherers</h1>
+            <div class="header-info">
+                <span>Show not-primos here</span>
+                <span>AAAAAAAAA</span>
+                <span id="pity">0 pity : Last 5* at 0 pity</span>
+            </div>
+        </div>
+    </div>
+    <div class="main-screen" id="mainScreen">
+        <div class="banner-select">
+            <div class="banner-item active" onclick="selectBanner(0)" data-banner="cheerio">
+                <img class="banner-icon" src="Assets/bannerArt/cheerio.png" alt="Cheerio Banner">
+            </div>
+            <div class="banner-item" onclick="selectBanner(1)" data-banner="focalors">
+                <img class="banner-icon" src="Assets/bannerArt/focalors.png" alt="Focalors Banner">
+            </div>
+            <div class="banner-item" onclick="selectBanner(2)" data-banner="kanade">
+                Kanade (MAKE THE FUCKING BANNER, BEN)
+            </div>
+        </div>
+        <div class="banner-detail">
+            <div class="banner-art">
+                <img src="Assets/bannerArt/cheerio.png" alt="Current Banner" id="currentBannerArt">
+            </div>
+            <div class="wish-buttons">
+                <button onclick="startWish(1)">Wish 1x</button>
+                <button onclick="startWish(10)">Wish 10x</button>
+            </div>
+        </div>
+    </div>
+
+    <button class="character-archive-button" onclick="openCharacterArchive()">Characters</button>
+
+    <div class="character-archive" id="characterArchive">
+        <button class="return-button" onclick="closeCharacterArchive()">Return</button>
+        <div class="character-content">
+            <div class="character-view">
+                <img id="archiveCharacterView" src="" alt="Character">
+            </div>
+            <div class="character-data" id="characterData">
+                <h2 id="characterName"></h2>
+                <p id="characterRarity"></p>
+                <p id="characterPulls"></p>
+                <p id="characterDescription" class="character-description"></p>
+            </div>
+        </div>
+        <div class="character-thumbnails" id="characterThumbnails"></div>
+    </div>
+
+    <div class="wish-screen" id="wishScreen">
+        <video class="wish-animation" id="wishAnimation"></video>
+        <div class="wish-results" id="wishResults"></div>
+        <button class="skip-button" onclick="skipAnimation()">Skip</button>
+    </div>
+    <script src="assets.js"></script>
+    <script>
+        // Constants and configuration
+        const PITY5CAP = 90;
+        const PITY4CAP = 10;
+        const BASE_RATE_5 = 0.006; // 0.6%
+        const BASE_RATE_4 = 0.051; // 5.1%
+        const PITY_INCREASE_RATE = 0.1; // Increase rate by 10% per pull after soft pity
+
+        // State variables
+        let pity4 = 1;
+        let pity5 = 1;
+        let last5StarPity = 0;
+        let currentResults = [];
+        let currentResultIndex = 0;
+        let isAnimationPlaying = false;
+
+        // Character data
+        const characters = {
+            "5star": ["Cheerio", "Kanade"],
+            "4star": ["Cheerio", "Focalors", "Kanade"],
+            "3star": ["trash"]
+        };
+
+        // Banner selection handling
+        function selectBanner(index) {
+            const banners = document.querySelectorAll('.banner-item');
+            banners.forEach(banner => banner.classList.remove('active'));
+            banners[index].classList.add('active');
+
+            // Update banner art
+            const selectedBanner = banners[index].getAttribute('data-banner');
+            document.getElementById('currentBannerArt').src = `Assets/bannerArt/${selectedBanner}.png`;
+        }
+
+        // Calculate pull rates based on pity
+        function calculateRates(pity5Count, pity4Count) {
+            let rate5 = BASE_RATE_5;
+            let rate4 = BASE_RATE_4;
+
+            // Soft pity system
+            if (pity5Count > 75) {
+                rate5 += (pity5Count - 75) * PITY_INCREASE_RATE;
+            }
+            if (pity4Count > 8) {
+                rate4 += (pity4Count - 8) * PITY_INCREASE_RATE;
+            }
+
+            return { rate5, rate4 };
+        }
+
+        let showingSlideshow = false;
+        let currentSlideIndex = 0;
+
+        // Wish animation handling
+        async function playWishAnimation(hasHighRarity) {
+            return new Promise((resolve) => {
+                const video = document.getElementById('wishAnimation');
+                video.style.display = 'block';
+
+                let videoPath;
+                if (hasHighRarity.has5Star) {
+                    videoPath = 'Assets/shitimation/bestWish.mp4';
+                } else if (hasHighRarity.has4Star) {
+                    videoPath = 'Assets/shitimation/goodWish.mp4';
+                } else {
+                    videoPath = 'Assets/shitimation/shitWish.mp4';
+                }
+
+                video.src = videoPath;
+                video.play();
+
+                video.onended = () => {
+                    video.style.display = 'none';
+                    showingSlideshow = true;
+                    currentSlideIndex = 0;
+                    displaySingleResult(0);
+                    resolve();
+                };
+
+                // Add skip button handler
+                const skipButton = document.querySelector('.skip-button');
+                const skipHandler = () => {
+                    video.pause();
+                    video.style.display = 'none';
+                    showingSlideshow = true;
+                    currentSlideIndex = 0;
+                    displaySingleResult(0);
+                    resolve();
+                    skipButton.removeEventListener('click', skipHandler);
+                };
+                skipButton.addEventListener('click', skipHandler);
+            });
+        }
+
+        // Single result display
+        function displaySingleResult(index) {
+            const resultsDiv = document.getElementById('wishResults');
+            const result = currentResults[index];
+
+            resultsDiv.innerHTML = `
+                <div class="single-result" onclick="nextResult()">
+                    <img src="Assets/Characters/${result.rarity}Star/${result.character}_${result.rarity}_star.png" alt="${result.character}">
+                    <h2>${result.character} (${result.rarity}★)</h2>
+                </div>
+                <div class="explosion-effect"></div>`;
+            resultsDiv.style.display = 'flex';
+
+            // Show explosion effect
+            const explosion = document.querySelector('.explosion-effect');
+            explosion.style.backgroundImage = `url(${assets.other.explosion})`;
+            explosion.style.opacity = '1';
+            setTimeout(() => {
+                explosion.style.opacity = '0';
+            }, 1000);
+        }
+
+        // Grid view display
+        function displayGridView() {
+            const resultsDiv = document.getElementById('wishResults');
+            const skipButton = document.querySelector('.skip-button');
+            skipButton.style.display = 'none';
+
+            resultsDiv.innerHTML = `
+                <div class="results-grid">
+                    ${currentResults.map((result, index) => `
+                        <div class="result-item" onclick="showFullscreen(${index}); event.stopPropagation();">
+                            <img src="Assets/Characters/${result.rarity}Star/${result.character}_${result.rarity}_star.png" alt="${result.character}">
+                            <h3>${result.character} (${result.rarity}★)</h3>
+                        </div>
+                    `).join('')}
+                </div>`;
+
+            resultsDiv.style.display = 'flex';
+            resultsDiv.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+            resultsDiv.onclick = (e) => {
+                if (e.target === resultsDiv) {
+                    returnToWishScreen();
+                }
+            };
+        }
+
+        function showFullscreen(index) {
+            currentSlideIndex = index;
+            showingSlideshow = true;
+            displaySingleResult(index);
+        }
+
+        function playRarityEffect(rarity) {
+            const effect = document.querySelector('.rarity-effect');
+            effect.className = 'rarity-effect';
+            void effect.offsetWidth; // Force reflow
+            effect.classList.add(`star${rarity}`);
+            effect.style.opacity = '1';
+            setTimeout(() => {
+                effect.style.opacity = '0';
+            }, 500);
+        }
+
+        function displaySingleResult(index) {
+            const resultsDiv = document.getElementById('wishResults');
+            const result = currentResults[index];
+
+            // Remove old result if exists
+            const oldResult = resultsDiv.querySelector('.single-result');
+            if (oldResult) {
+                oldResult.classList.add('slide-out');
+                setTimeout(() => oldResult.remove(), 500);
+            }
+
+            // Create new result
+            const newResult = document.createElement('div');
+            newResult.className = 'single-result slide-in';
+            newResult.innerHTML = `
+                <img src="Assets/Characters/${result.rarity}Star/${result.character}_${result.rarity}_star.png" alt="${result.character}">
+                <h2>${result.character} (${result.rarity}★)</h2>
+            `;
+            newResult.onclick = nextResult;
+
+            // Add new result
+            resultsDiv.innerHTML = '<div class="rarity-effect"></div>';
+            resultsDiv.appendChild(newResult);
+            resultsDiv.style.display = 'flex';
+
+            // Trigger slide animation
+            setTimeout(() => {
+                newResult.classList.remove('slide-in');
+                newResult.classList.add('slide-center');
+            }, 50);
+
+            playRarityEffect(result.rarity);
+        }
+
+        // Next result handler
+        function nextResult() {
+            currentSlideIndex++;
+            if (currentSlideIndex >= currentResults.length) {
+                showingSlideshow = false;
+                displayGridView();
+            } else {
+                displaySingleResult(currentSlideIndex);
+            }
+        }
+
+        // Return to wish screen
+        function returnToWishScreen() {
+            document.getElementById('wishScreen').style.display = 'none';
+            document.getElementById('mainScreen').style.display = 'flex';
+            document.querySelector('.skip-button').style.display = 'block';
+            document.getElementById('wishResults').innerHTML = '';
+            document.getElementById('pity').innerHTML = `${pity5-1} pity : Last 5* at ${last5StarPity} pity`
+            currentResults = [];
+            currentSlideIndex = 0;
+            showingSlideshow = false;
+        }
+
+        // Skip animation handler
+        function skipAnimation() {
+            const video = document.getElementById('wishAnimation');
+            const resultsDiv = document.getElementById('wishResults');
+
+            if (isAnimationPlaying) {
+                video.style.display = 'none';
+                showingSlideshow = true;
+                currentSlideIndex = 0;
+                displaySingleResult(0);
+                isAnimationPlaying = false;
+            } else if (showingSlideshow) {
+                showingSlideshow = false;
+                displayGridView();
+            }
+        }
+
+        // Main wish function
+        async function startWish(times = 1) {
+            const mainScreen = document.getElementById('mainScreen');
+            const wishScreen = document.getElementById('wishScreen');
+
+            mainScreen.style.display = 'none';
+            wishScreen.style.display = 'flex';
+
+            currentResults = [];
+            let has5Star = false;
+            let has4Star = false;
+
+            for (let i = 0; i < times; i++) {
+                const { rate5, rate4 } = calculateRates(pity5, pity4);
+                const roll = Math.random();
+
+                let result = {
+                    character: null,
+                    rarity: null
+                };
+
+                if (roll < rate5 || pity5 >= PITY5CAP) {
+                    result.rarity = "5";
+                    result.character = characters["5star"][Math.floor(Math.random() * characters["5star"].length)];
+                    has5Star = true;
+                    last5StarPity = pity5;
+                    pity5 = 0;
+                } else if (roll < (rate5 + rate4) || pity4 >= PITY4CAP) {
+                    result.rarity = "4";
+                    result.character = characters["4star"][Math.floor(Math.random() * characters["4star"].length)];
+                    has4Star = true;
+                    pity4 = 0;
+                } else {
+                    result.rarity = "3";
+                    result.character = characters["3star"][0];
+                }
+
+                currentResults.push(result);
+                pity4++;
+                pity5++;
+            }
+
+            isAnimationPlaying = true;
+            await playWishAnimation({ has5Star, has4Star });
+
+            if (isAnimationPlaying) {
+                displayWishResults();
+                isAnimationPlaying = false;
+            }
+        }
+
+        // Character archive functionality
+        let characterStats = {};
+        let characterNotes = {};
+
+        function updateCharacterStats(character, rarity) {
+            if (!characterStats[character]) {
+                characterStats[character] = {
+                    rarity: rarity,
+                    pulls: 0
+                };
+            }
+            characterStats[character].pulls++;
+        }
+
+        function openCharacterArchive() {
+            const archive = document.getElementById('characterArchive');
+            const thumbnails = document.getElementById('characterThumbnails');
+            archive.style.display = 'flex';
+
+            // Clear existing thumbnails
+            thumbnails.innerHTML = '';
+
+            // Add thumbnails for all characters
+            for (const rarity of ['3', '4', '5']) {
+                for (const character of characters[rarity + 'star']) {
+                    const stats = characterStats[character] || { pulls: 0 };
+                    const thumbnail = document.createElement('div');
+                    thumbnail.className = 'character-thumbnail';
+                    thumbnail.innerHTML = `
+                        <img src="Assets/Characters/${rarity}Star/${character}_${rarity}_star.png" 
+                             alt="${character}"
+                             onclick="viewCharacter('${character}', ${rarity})">
+                    `;
+                    thumbnails.appendChild(thumbnail);
+                }
+            }
+
+            // Show first character by default
+            if (characters['5star'].length > 0) {
+                viewCharacter(characters['5star'][0], 5);
+            }
+        }
+
+        function viewCharacter(character, rarity) {
+            const stats = characterStats[character] || { pulls: 0 };
+
+            document.getElementById('archiveCharacterView').src = 
+                `Assets/Characters/${rarity}Star/${character}_${rarity}_star.png`;
+            document.getElementById('characterName').textContent = character;
+            document.getElementById('characterRarity').textContent = `${rarity}★`;
+            document.getElementById('characterPulls').textContent = `Times Pulled: ${stats.pulls}`;
+        }
+
+        function closeCharacterArchive() {
+            const archive = document.getElementById('characterArchive');
+            archive.style.display = 'none';
+        }
+
+        // Save notes when changed
+        document.getElementById('characterNotes').addEventListener('input', function(e) {
+            const character = document.getElementById('characterName').textContent;
+            characterNotes[character] = e.target.value;
+        });
+
+        // Update character stats when pulled
+        const originalStartWish = startWish;
+        startWish = async function(times = 1) {
+            await originalStartWish(times);
+            currentResults.forEach(result => {
+                updateCharacterStats(result.character, result.rarity);
+            });
+        };
+
+        // Initialize first banner
+        selectBanner(0);
+    </script>
+</body>
+</html>
