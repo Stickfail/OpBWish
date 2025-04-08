@@ -1,4 +1,3 @@
-
 // Asset Categories and Types
 const ASSET_TYPES = {
     CHARACTER: 'character',
@@ -13,105 +12,110 @@ const PRELOAD_STATES = {
     ERROR: 'error'
 };
 
-// Asset Lists
-const assets = {
-    characterCards: {
-        "3star": [
-            'Assets/Characters/3Star/poop_3_star.png'
-        ],
-        "4star": [
-            'Assets/Characters/4Star/Cheerio_4_star.png',
-            'Assets/Characters/4Star/Focalors_4_star.png',
-            'Assets/Characters/4Star/Kanade_4_star.png'
-        ],
-        "5star": [
-            'Assets/Characters/5Star/Cheerio_5_star.png',
-            'Assets/Characters/5Star/Kanade_5_star.png'
-            // TODO: Add Focalors 5 star when available
-        ]
-    },
-    bannerArt: [
-        'Assets/bannerArt/cheerio.png',
-        'Assets/bannerArt/focalors.png'
-    ],
-    wishAnimations: [
-        'Assets/shitimation/bestWish.gif',
-        'Assets/shitimation/goodWish.gif',
-        'Assets/shitimation/shitWish.gif'
-    ],
-    other: [
-        'Assets/other/explosion.png'
-    ]
-};
+// Asset Manager Class
+class AssetManager {
+    constructor() {
+        this.assets = {
+            characterCards: {},
+            bannerArt: {},
+            animations: {},
+            other: {}
+        };
+        this.loadingPromises = [];
+    }
 
-// TODO: Add your character data here! Follow this format:
-// const characterData = {
-//     "Cheerio": { description: "...", element: "...", weapon: "..." },
-//     "Focalors": { description: "...", element: "...", weapon: "..." },
-//     ...
-// };
+    async preloadImage(src) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.onload = () => resolve(img);
+            img.onerror = reject;
+            img.src = src;
+        });
+    }
 
-// Preloader Functions
-async function preloadImage(src) {
-    return new Promise((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => resolve(img);
-        img.onerror = reject;
-        img.src = src;
-    });
-}
+    async preloadVideo(src) {
+        return new Promise((resolve, reject) => {
+            const video = document.createElement('video');
+            video.oncanplaythrough = () => resolve(video);
+            video.onerror = reject;
+            video.src = src;
+            video.load();
+        });
+    }
 
-async function preloadVideo(src) {
-    return new Promise((resolve, reject) => {
-        const video = document.createElement('video');
-        video.oncanplaythrough = () => resolve(video);
-        video.onerror = reject;
-        video.src = src;
-    });
-}
+    async loadInitialAssets() {
+        const promises = [];
 
-// Main preloader
-async function preloadAssets(progressCallback) {
-    const total = Object.values(assets.characterCards).flat().length + 
-                 assets.bannerArt.length + 
-                 assets.wishAnimations.length;
-    let loaded = 0;
+        // Load banner art
+        const bannerArtFiles = ['cheerio.png', 'focalors.png'];
+        for (const file of bannerArtFiles) {
+            promises.push(
+                this.preloadImage(`Assets/bannerArt/${file}`)
+                    .then(img => this.assets.bannerArt[file] = img)
+            );
+        }
 
-    try {
-        // Preload character cards
-        for (const rarity in assets.characterCards) {
-            for (const path of assets.characterCards[rarity]) {
-                await preloadImage(path);
-                loaded++;
-                progressCallback?.(loaded / total);
+        // Load animations
+        const animationFiles = ['bestWish.mp4', 'goodWish.mp4', 'shitWish.mp4']; //Updated to mp4
+        for (const file of animationFiles) {
+            promises.push(
+                this.preloadVideo(`Assets/shitimation/${file}`)
+                    .then(video => this.assets.animations[file] = video)
+            );
+        }
+
+        // Load other assets
+        promises.push(
+            this.preloadImage('Assets/other/explosion.png')
+                .then(img => this.assets.other['explosion.png'] = img)
+        );
+
+        return Promise.all(promises);
+    }
+
+    async loadCharacterAssets(characters) {
+        const promises = [];
+
+        for (const char of characters) {
+            const path = `Assets/Characters/${char.rarity}Star/${char.filename}`;
+            if (!this.assets.characterCards[path]) {
+                promises.push(
+                    this.preloadImage(path)
+                        .then(img => this.assets.characterCards[path] = img)
+                );
             }
         }
 
-        // Preload banner art
-        for (const path of assets.bannerArt) {
-            await preloadImage(path);
-            loaded++;
-            progressCallback?.(loaded / total);
-        }
+        return Promise.all(promises);
+    }
 
-        // Preload animations
-        for (const path of assets.wishAnimations) {
-            await preloadVideo(path);
-            loaded++;
-            progressCallback?.(loaded / total);
-        }
+    unloadCharacterAssets() {
+        this.assets.characterCards = {};
+    }
 
-        return PRELOAD_STATES.READY;
-    } catch (error) {
-        console.error('Asset preloading failed:', error);
-        return PRELOAD_STATES.ERROR;
+    getLoadingProgress() {
+        const total = this.loadingPromises.length;
+        const completed = this.loadingPromises.filter(p => p.status === 'fulfilled').length;
+        return total > 0 ? completed / total : 1;
     }
 }
 
-// Export interface
-export {
-    preloadAssets,
-    assets,
-    PRELOAD_STATES,
-    ASSET_TYPES
-};
+const assetManager = new AssetManager();
+
+// Example usage (Illustrative):
+// const charactersToLoad = [
+//     { rarity: 3, filename: 'poop_3_star.png' },
+//     { rarity: 4, filename: 'Cheerio_4_star.png' },
+//     // ...more characters
+// ];
+
+// async function loadAll() {
+//     await assetManager.loadInitialAssets();
+//     await assetManager.loadCharacterAssets(charactersToLoad);
+//     console.log("Assets Loaded:", assetManager.assets);
+// }
+
+
+// loadAll();
+
+export { assetManager, ASSET_TYPES, PRELOAD_STATES };
