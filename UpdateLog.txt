@@ -14,3 +14,4 @@ Slowly realizing that making all these damn assets in MSPaint was a mistake lol.
 V1.2
 
 Well, Aspen/Lila through a lot more artwork at me. Which is perfect, since the game is theirs. So now we went from a wee 4:2 4 stars to 5 stars, now we're at something crazy like 14:10. Only regret is that GOD DAMN DOES MY SYSTEM SUCK ASS. It's really tedious to add new things in. Only I'd rather suffer than fix it lol. It's a feature now.
+Getting fucking Git working was a pain in the ass. Fuck that shit. Glad I only have to do it once. Miss it when this shit used to be super easy and self-explanatory.
