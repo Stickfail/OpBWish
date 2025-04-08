@@ -2,9 +2,67 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Sillier Wisherers</title>
     <style>
+        /* Loading screen styles */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 3000;
+            color: white;
+        }
+
+        .loading-bar {
+            width: 80%;
+            height: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+
+        .loading-progress {
+            height: 100%;
+            background: #F4C85C;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        /* Mobile optimizations */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .rotate-device {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: black;
+                color: white;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 4000;
+            }
+        }
+
+        .card-title {
+            position: absolute;
+            top: -30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            text-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
         span{
             border: 1px solid rgba(0,0,0,0.4);
             padding: 10px;
@@ -470,7 +528,7 @@
             <div class="header-info">
                 <span>Show not-primos here</span>
                 <span>AAAAAAAAA</span>
-                <span id="pity">0 pity : Last 5* at 0 pity</span>
+                <span id="pity">0 pity : Last 5★ at 0 pity</span>
             </div>
         </div>
     </div>
@@ -537,12 +595,57 @@
         let currentResultIndex = 0;
         let isAnimationPlaying = false;
 
-        // Character data
-        const characters = {
-            "5star": ["Cheerio", "Kanade"],
-            "4star": ["Cheerio", "Focalors", "Kanade"],
-            "3star": ["trash"]
+        // Character data system
+        const characterData = {
+            "Assets/Characters/5Star/Cheerio_5_star.png": {
+                name: "Cheerio",
+                rarity: "5",
+                description: "The legendary Cheerio"
+            },
+            "Assets/Characters/5Star/Kanade_5_star.png": {
+                name: "Kanade",
+                rarity: "5",
+                description: "5★ Kanade variant"
+            },
+            "Assets/Characters/4Star/Cheerio_4_star.png": {
+                name: "Cheerio",
+                rarity: "4",
+                description: "4★ Cheerio variant"
+            },
+            "Assets/Characters/4Star/Focalors_4_star.png": {
+                name: "Focalors",
+                rarity: "4",
+                description: "Standard Focalors"
+            },
+            "Assets/Characters/4Star/Fuckalors_4_star.png": {
+                name: "Fuckalors",
+                rarity: "4",
+                description: "Alternate Focalors"
+            },
+            "Assets/Characters/4Star/Kanade_4_star.png": {
+                name: "Kanade",
+                rarity: "4",
+                description: "4★ Kanade variant"
+            },
+            "Assets/Characters/3Star/trash_3_star.png": {
+                name: "Trash",
+                rarity: "3",
+                description: "Common trash pull"
+            }
         };
+
+        // Character pools by rarity
+        const characterPools = {
+            "5": Object.keys(characterData).filter(path => characterData[path].rarity === "5"),
+            "4": Object.keys(characterData).filter(path => characterData[path].rarity === "4"),
+            "3": Object.keys(characterData).filter(path => characterData[path].rarity === "3")
+        };
+
+        function getRandomCard(character, rarity) {
+            const cardList = characters[rarity + "star"][character];
+            const randomIndex = Math.floor(Math.random() * cardList.length);
+            return cardList[randomIndex];
+        }
 
         // Banner selection handling
         function selectBanner(index) {
@@ -776,18 +879,24 @@
 
                 if (roll < rate5 || pity5 >= PITY5CAP) {
                     result.rarity = "5";
-                    result.character = characters["5star"][Math.floor(Math.random() * characters["5star"].length)];
+                    const characterPool = characterPools["5"];
+                    const filePath = characterPool[Math.floor(Math.random() * characterPool.length)];
+                    result.character = characterData[filePath].name;
                     has5Star = true;
                     last5StarPity = pity5;
                     pity5 = 0;
                 } else if (roll < (rate5 + rate4) || pity4 >= PITY4CAP) {
                     result.rarity = "4";
-                    result.character = characters["4star"][Math.floor(Math.random() * characters["4star"].length)];
+                    const characterPool = characterPools["4"];
+                    const filePath = characterPool[Math.floor(Math.random() * characterPool.length)];
+                    result.character = characterData[filePath].name;
                     has4Star = true;
                     pity4 = 0;
                 } else {
                     result.rarity = "3";
-                    result.character = characters["3star"][0];
+                    const characterPool = characterPools["3"];
+                    const filePath = characterPool[Math.floor(Math.random() * characterPool.length)];
+                    result.character = characterData[filePath].name;
                 }
 
                 currentResults.push(result);
@@ -877,8 +986,51 @@
             });
         };
 
-        // Initialize first banner
-        selectBanner(0);
+        // Mobile handling
+        function handleMobileDevice() {
+            if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)) {
+                if (document.documentElement.requestFullscreen) {
+                    document.documentElement.requestFullscreen();
+                }
+                
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(() => {
+                        // Show rotate device message if can't force orientation
+                        const rotateMsg = document.createElement('div');
+                        rotateMsg.className = 'rotate-device';
+                        rotateMsg.innerHTML = 'Please rotate your device to landscape mode';
+                        document.body.appendChild(rotateMsg);
+                    });
+                }
+            }
+        }
+
+        // Loading screen
+        const loadingScreen = document.createElement('div');
+        loadingScreen.className = 'loading-screen';
+        loadingScreen.innerHTML = `
+            <h2>Loading Game Assets</h2>
+            <div class="loading-bar">
+                <div class="loading-progress" style="width: 0%"></div>
+            </div>
+        `;
+        document.body.appendChild(loadingScreen);
+
+        // Initialize game
+        async function initializeGame() {
+            handleMobileDevice();
+            
+            try {
+                await assetManager.loadInitialAssets();
+                loadingScreen.style.display = 'none';
+                selectBanner(0);
+            } catch (error) {
+                console.error('Failed to load initial assets:', error);
+                loadingScreen.innerHTML = '<h2>Failed to load game assets. Please refresh.</h2>';
+            }
+        }
+
+        initializeGame();
     </script>
 </body>
 </html>
