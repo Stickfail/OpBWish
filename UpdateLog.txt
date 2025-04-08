@@ -1,0 +1,11 @@
+V1.0
+
+Let's fuckin goooo game is now exist.
+
+
+V1.1
+
+Fixed the damn character system. Didn't care enough to actually fix it though, so now we have Focalors and Fuckalors. Will probably never fix this. Fuck JavaScript.
+Added another 4 star for Focalors. May eventually move it up to be a 5 star, once I have other 4 stars.
+Improved preloading and other performance changes. Shit it's running consistently under 30MB memory now, so says chrome. As of writing this, running at 16.3MB.
+Slowly realizing that making all these damn assets in MSPaint was a mistake lol. It's so bad, but also kind of perfect.

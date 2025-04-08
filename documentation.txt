@@ -1,0 +1,107 @@
+
+SILLIER WISHERERS DOCUMENTATION
+
+1. CORE SYSTEMS
+---------------
+- Pity System: Guarantees 4★ within 10 pulls and 5★ within 90 pulls
+- Base Rates: 5★ = 0.6%, 4★ = 5.1%
+- Soft Pity: Increases rates by 10% per pull after 75 pulls for 5★ and 8 pulls for 4★
+
+2. WISHING SYSTEM
+----------------
+startWish(times): Main wishing function
+- Parameter: times (1 or 10)
+- Handles pull logic, animation, and result display
+- Updates pity counters and character stats
+- Triggers appropriate animations based on rarity
+
+calculateRates(pity5Count, pity4Count): Calculates pull rates
+- Returns adjusted rates based on pity counters
+- Implements soft pity system
+- Returns {rate5, rate4} object
+
+3. DISPLAY FUNCTIONS
+-------------------
+displaySingleResult(index): Shows individual pull result
+- Displays character image with rarity effect
+- Handles slide animations
+- Manages result transitions
+
+displayGridView(): Shows grid of all results
+- Displays 5x2 grid of pulled characters
+- Shows character names and rarities
+- Allows clicking for fullscreen view
+
+playWishAnimation(hasHighRarity): Handles wish animations
+- Plays appropriate animation based on highest rarity
+- Supports skip functionality
+- Returns Promise that resolves when animation ends
+
+4. CHARACTER ARCHIVE
+-------------------
+openCharacterArchive(): Opens character collection
+- Displays all obtained characters
+- Shows pull statistics
+- Groups by rarity
+
+viewCharacter(character, rarity): Shows character details
+- Displays full character art
+- Shows pull count and rarity
+- Shows character description
+
+5. ASSET MANAGEMENT
+------------------
+AssetManager Class: Handles all asset loading
+- Preloads images and videos
+- Manages loading states
+- Tracks loading progress
+
+Asset Paths:
+- Character images: Assets/Characters/{rarity}Star/{filename}
+- Banner art: Assets/bannerArt/{filename}
+- Animations: Assets/shitimation/{filename}
+- Other assets: Assets/other/{filename}
+
+6. STATE TRACKING
+----------------
+Global State Variables:
+- pity4, pity5: Current pity counters
+- last5StarPity: Pity count of last 5★
+- characterStats: Pull statistics for each character
+- currentResults: Current wish session results
+
+7. DATA STRUCTURES
+-----------------
+characterData: Character information database
+- Stores name, rarity, and description
+- Indexed by file path
+- Used for character archive and result display
+
+characterPools: Available characters by rarity
+- Groups characters by rarity (3★, 4★, 5★)
+- Used for wish calculations
+- Automatically generated from characterData
+
+8. MOBILE OPTIMIZATION
+---------------------
+handleMobileDevice(): Mobile device handler
+- Forces landscape orientation
+- Manages fullscreen mode
+- Shows rotation message if needed
+
+9. UI COMPONENTS
+---------------
+Banner Selection:
+- Allows switching between wish banners
+- Updates banner art display
+- Tracks active banner
+
+Wish Buttons:
+- Single wish (1x)
+- Multi wish (10x)
+- Updates pity display
+
+Character Archive:
+- Thumbnail gallery
+- Character details view
+- Pull statistics
