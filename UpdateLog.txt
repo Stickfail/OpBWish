@@ -9,3 +9,8 @@ Fixed the damn character system. Didn't care enough to actually fix it though, s
 Added another 4 star for Focalors. May eventually move it up to be a 5 star, once I have other 4 stars.
 Improved preloading and other performance changes. Shit it's running consistently under 30MB memory now, so says chrome. As of writing this, running at 16.3MB.
 Slowly realizing that making all these damn assets in MSPaint was a mistake lol. It's so bad, but also kind of perfect.
+
+
+V1.2
+
+Well, Aspen/Lila through a lot more artwork at me. Which is perfect, since the game is theirs. So now we went from a wee 4:2 4 stars to 5 stars, now we're at something crazy like 14:10. Only regret is that GOD DAMN DOES MY SYSTEM SUCK ASS. It's really tedious to add new things in. Only I'd rather suffer than fix it lol. It's a feature now.
